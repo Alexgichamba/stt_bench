@@ -1,0 +1,52 @@
+# configs/african_evaluation.yaml
+
+# African-language-focused evaluation.
+# Run with:
+#   python scripts/evaluate.py whisper_large_v3 --eval-config stt_benchmark/config/eval_configs/african_eval.yaml
+
+experiment_name: african_eval
+
+# ── ASR ──────────────────────────────────────────────────────────────────────
+# Languages to evaluate for automatic speech recognition.
+asr:
+  languages:
+    - af_za    # Afrikaans
+    - am_et    # Amharic
+    - ha_ng    # Hausa
+    - ig_ng    # Igbo
+    - lg_ug    # Luganda
+    - ln_cd    # Lingala
+    - luo_ke   # Luo
+    - ny_mw    # Chichewa
+    - om_et    # Oromo
+    - sn_zw    # Shona
+    - so_so    # Somali
+    - sw_ke    # Swahili
+    - wo_sn    # Wolof
+    - xh_za    # Xhosa
+    - yo_ng    # Yoruba
+    - zu_za    # Zulu
+
+# ── AST ──────────────────────────────────────────────────────────────────────
+# Anchor-based: every source language is paired with each anchor IN BOTH DIRECTIONS.
+# This generates |sources| × |anchors| × 2 pairs (minus self-pairs and duplicates).
+#
+# e.g. anchor_targets: [en_us] with sources: [sw_ke, yo_ng] produces:
+#   sw_ke → en_us, en_us → sw_ke, yo_ng → en_us, en_us → yo_ng
+#
+# You can also add extra explicit pairs under `extra_pairs`.
+ast:
+  # Source languages for AST (defaults to asr.languages if omitted)
+  # sources:
+  #   - sw_ke
+  #   - yo_ng
+
+  # Anchor targets — every source language is paired with each anchor
+  anchor_targets:
+    - en_us    # English
+    - fr_fr    # French
+
+  # Optional: additional explicit pairs not covered by anchors
+  # extra_pairs:
+  #   - source: ar_eg
+  #     target: sw_ke

@@ -8,8 +8,8 @@ from typing import Dict, List, Any, Optional
 class ASRPrediction:
     """A single ASR prediction."""
     sample_id: str
-    reference: str         # Ground truth transcription
-    hypothesis: str        # Model output
+    reference: str
+    hypothesis: str
     audio_path: str
     language: str
     prediction_time: Optional[float] = None
@@ -19,9 +19,9 @@ class ASRPrediction:
 class ASTPrediction:
     """A single AST prediction."""
     sample_id: str
-    source_transcription: str   # Ground truth in source language
-    reference: str              # Ground truth translation in target language
-    hypothesis: str             # Model output (translation)
+    source_transcription: str
+    reference: str
+    hypothesis: str
     audio_path: str
     source_lang: str
     target_lang: str
@@ -31,8 +31,8 @@ class ASTPrediction:
 @dataclass
 class ASRMetrics:
     """Corpus-level ASR metrics."""
-    wer: float               # Word Error Rate (lower is better)
-    cer: float               # Character Error Rate (lower is better)
+    wer: float
+    cer: float
     num_samples: int
     metric_config: Dict[str, Any]
 
@@ -40,8 +40,8 @@ class ASRMetrics:
 @dataclass
 class ASTMetrics:
     """Corpus-level AST metrics."""
-    bleu: float              # BLEU score (higher is better)
-    chrf: float              # chrF++ score (higher is better)
+    bleu: float
+    chrf: float
     num_samples: int
     metric_config: Dict[str, Any]
 

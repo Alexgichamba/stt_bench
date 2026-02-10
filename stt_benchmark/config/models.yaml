@@ -13,7 +13,7 @@ whisper_large_v3:
   tasks: ["asr", "ast"]
   generation_config:
     num_beams: 1          # greedy for speed; set to 5 for quality
-    max_new_tokens: 448
+    max_new_tokens: 384
     return_timestamps: false
 
 whisper_large_v3_turbo:
@@ -24,7 +24,7 @@ whisper_large_v3_turbo:
   tasks: ["asr", "ast"]
   generation_config:
     num_beams: 1
-    max_new_tokens: 448
+    max_new_tokens: 384
     return_timestamps: false
 
 whisper_medium:
@@ -35,7 +35,7 @@ whisper_medium:
   tasks: ["asr", "ast"]
   generation_config:
     num_beams: 1
-    max_new_tokens: 448
+    max_new_tokens: 384
     return_timestamps: false
 
 whisper_small:
@@ -46,7 +46,7 @@ whisper_small:
   tasks: ["asr", "ast"]
   generation_config:
     num_beams: 1
-    max_new_tokens: 448
+    max_new_tokens: 384
     return_timestamps: false
 
 # ============================================================================
@@ -62,7 +62,7 @@ seamless_m4t_v2_large:
   tasks: ["asr", "ast"]
   generation_config:
     num_beams: 1
-    max_new_tokens: 448
+    max_new_tokens: 384
 
 # ============================================================================
 # MMS (Meta Massively Multilingual Speech)

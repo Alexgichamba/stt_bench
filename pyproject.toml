@@ -32,7 +32,10 @@ dependencies = [
     "tqdm==4.67.1",
     "dspy==3.0.0",
     "sentencepiece==0.2.1",
-    "datasets"
+    "datasets==4.5.0",
+    "soundfile==0.13.1",
+    "librosa==0.11.0",
+    "jiwer==4.0.0"
 ]
 
 
