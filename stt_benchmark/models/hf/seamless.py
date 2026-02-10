@@ -110,7 +110,7 @@ class SeamlessModel(BaseSTTModel):
             token_ids = output_tokens
 
         text = self.processor.decode(
-            token_ids[0].tolist(),
+            token_ids[0].tolist()[0],
             skip_special_tokens=True,
         )
         return text.strip()
