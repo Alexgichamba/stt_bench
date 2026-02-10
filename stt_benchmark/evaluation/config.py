@@ -7,16 +7,21 @@ Reads a YAML eval config and produces concrete lists of:
   - ASR languages
   - AST (source, target) pairs
 
-Supports anchor-based shorthand for AST:
+Supports anchor-based shorthand for AST with configurable direction:
     ast:
-      anchor_targets: [en_us, fr_fr]
-  expands to every (source, anchor) pair where source ≠ anchor.
+      anchors: [en_us, fr_fr]
+      direction: both          # "forward", "reverse", or "both"
+
+Direction controls how anchors expand:
+  - "forward":  source → anchor  (source audio, anchor text)
+  - "reverse":  anchor → source  (anchor audio, source text)
+  - "both":     both directions
 """
 
 import yaml
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List, Tuple, Optional, Set
+from dataclasses import dataclass
+from typing import List, Tuple, Set
 
 
 @dataclass
@@ -38,7 +43,6 @@ class EvalConfig:
             for src, tgt in self.ast_pairs:
                 lines.append(f"  {src} → {tgt}")
         elif self.ast_pairs:
-            # Show first 10 + count
             for src, tgt in self.ast_pairs[:10]:
                 lines.append(f"  {src} → {tgt}")
             lines.append(f"  ... and {len(self.ast_pairs) - 10} more")
@@ -73,36 +77,38 @@ def load_eval_config(config_path: str) -> EvalConfig:
     # Source languages: explicit list, or fall back to ASR languages
     ast_sources: List[str] = ast_section.get("sources", asr_languages)
 
-    # Anchor targets
-    anchor_targets: List[str] = ast_section.get("anchor_targets", [])
+    # Anchors and direction
+    anchors: List[str] = ast_section.get("anchors", [])
+    direction: str = ast_section.get("direction", "both")
 
-    # Expand anchors bidirectionally:
-    #   source → anchor  AND  anchor → source
+    if direction not in ("forward", "reverse", "both"):
+        raise ValueError(
+            f"Invalid ast.direction: '{direction}'. "
+            f"Must be 'forward', 'reverse', or 'both'."
+        )
+
+    # Expand anchors based on direction
     ast_pairs: List[Tuple[str, str]] = []
     seen: Set[Tuple[str, str]] = set()
 
-    for src in ast_sources:
-        for anchor in anchor_targets:
-            if src != anchor:
-                # source → anchor
-                pair_fwd = (src, anchor)
-                if pair_fwd not in seen:
-                    ast_pairs.append(pair_fwd)
-                    seen.add(pair_fwd)
-                # anchor → source
-                pair_rev = (anchor, src)
-                if pair_rev not in seen:
-                    ast_pairs.append(pair_rev)
-                    seen.add(pair_rev)
+    def _add(src: str, tgt: str):
+        pair = (src, tgt)
+        if src != tgt and pair not in seen:
+            ast_pairs.append(pair)
+            seen.add(pair)
 
-    # Extra explicit pairs
+    for src in ast_sources:
+        for anchor in anchors:
+            if direction in ("forward", "both"):
+                _add(src, anchor)       # source audio → anchor text
+            if direction in ("reverse", "both"):
+                _add(anchor, src)       # anchor audio → source text
+
+    # Extra explicit pairs (always added regardless of direction)
     extra_pairs = ast_section.get("extra_pairs", [])
     if extra_pairs:
         for entry in extra_pairs:
-            pair = (entry["source"], entry["target"])
-            if pair not in seen:
-                ast_pairs.append(pair)
-                seen.add(pair)
+            _add(entry["source"], entry["target"])
 
     return EvalConfig(
         experiment_name=experiment_name,

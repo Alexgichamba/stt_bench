@@ -28,25 +28,29 @@ asr:
     - zu_za    # Zulu
 
 # ── AST ──────────────────────────────────────────────────────────────────────
-# Anchor-based: every source language is paired with each anchor IN BOTH DIRECTIONS.
-# This generates |sources| × |anchors| × 2 pairs (minus self-pairs and duplicates).
+# Each source language is paired with each anchor.
 #
-# e.g. anchor_targets: [en_us] with sources: [sw_ke, yo_ng] produces:
-#   sw_ke → en_us, en_us → sw_ke, yo_ng → en_us, en_us → yo_ng
+# direction controls how pairs expand:
+#   "forward"  — source → anchor  (source audio, anchor text)
+#   "reverse"  — anchor → source  (anchor audio, source text)
+#   "both"     — both directions
 #
-# You can also add extra explicit pairs under `extra_pairs`.
+# FLEURS parallel data is structured as {source}-{target}.csv where source
+# has the audio. So use "forward" to match data like sw_ke-en_us.csv,
+# or "both" if your dataset also has en_us-sw_ke.csv.
 ast:
-  # Source languages for AST (defaults to asr.languages if omitted)
+  # Sources default to asr.languages when omitted
   # sources:
   #   - sw_ke
   #   - yo_ng
 
-  # Anchor targets — every source language is paired with each anchor
-  anchor_targets:
+  anchors:
     - en_us    # English
     - fr_fr    # French
 
-  # Optional: additional explicit pairs not covered by anchors
+  direction: both   # source → anchor AND anchor → source
+
+  # Optional: additional explicit pairs
   # extra_pairs:
   #   - source: ar_eg
   #     target: sw_ke

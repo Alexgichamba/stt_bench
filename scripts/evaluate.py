@@ -24,7 +24,7 @@ from stt_benchmark.models.factory import ModelFactory
 from stt_benchmark.models.base import BaseASRModel, BaseASTModel
 from stt_benchmark.datasets.fleurs import FleursDataset
 from stt_benchmark.evaluation.pipeline import EvaluationPipeline
-from stt_benchmark.config.eval_config import load_eval_config
+from stt_benchmark.evaluation.config import load_eval_config
 
 
 # =========================================================================

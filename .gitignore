@@ -1,3 +1,5 @@
 stt_benchmark.egg-info/
 *.pyc
 results/
+*.sh
+*.out
