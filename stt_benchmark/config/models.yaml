@@ -1,0 +1,86 @@
+# stt_benchmark/config/models.yaml
+
+# ============================================================================
+# Whisper Models (OpenAI)
+# Supports: ASR (all languages), AST (X -> English only)
+# ============================================================================
+
+whisper_large_v3:
+  model_name: "openai/whisper-large-v3"
+  model_type: "whisper"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 1          # greedy for speed; set to 5 for quality
+    max_new_tokens: 448
+    return_timestamps: false
+
+whisper_large_v3_turbo:
+  model_name: "openai/whisper-large-v3-turbo"
+  model_type: "whisper"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 1
+    max_new_tokens: 448
+    return_timestamps: false
+
+whisper_medium:
+  model_name: "openai/whisper-medium"
+  model_type: "whisper"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 1
+    max_new_tokens: 448
+    return_timestamps: false
+
+whisper_small:
+  model_name: "openai/whisper-small"
+  model_type: "whisper"
+  torch_dtype: "float32"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 1
+    max_new_tokens: 448
+    return_timestamps: false
+
+# ============================================================================
+# SeamlessM4T v2 (Meta)
+# Supports: ASR + AST (many language pairs)
+# ============================================================================
+
+seamless_m4t_v2_large:
+  model_name: "facebook/seamless-m4t-v2-large"
+  model_type: "seamless"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 1
+    max_new_tokens: 448
+
+# ============================================================================
+# MMS (Meta Massively Multilingual Speech)
+# Supports: ASR only (1162 languages with mms-1b-all)
+# ============================================================================
+
+mms_1b_all:
+  model_name: "facebook/mms-1b-all"
+  model_type: "mms"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr"]
+  generation_config: {}
+
+mms_1b_fl102:
+  model_name: "facebook/mms-1b-fl102"
+  model_type: "mms"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr"]
+  generation_config: {}

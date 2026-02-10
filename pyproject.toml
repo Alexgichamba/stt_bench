@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stt-benchmark"
+version = "0.1.0"
+description = "Speech to Text Benchmarking Framework"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Alex Gichamba", email = "alexgichamba@ieee.org"},
+]
+license = {text = "MIT"}
+keywords = ["speech translation", "speech recognition", "evaluation", "benchmark", "NLP"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch==2.8.0",
+    "transformers==4.55.0",
+    "PyYAML==6.0.2",
+    "pandas==2.3.1",
+    "sacrebleu==2.5.1",
+    "tqdm==4.67.1",
+    "dspy==3.0.0",
+    "sentencepiece==0.2.1",
+    "datasets"
+]
+
+
+[project.urls]
+Homepage = "https://github.com/wakandaai/stt-benchmark"
+Repository = "https://github.com/wakandaai/stt-benchmark"
+Documentation = "https://github.com/wakandaai/stt-benchmark#readme"
+"Bug Tracker" = "https://github.com/wakandaai/stt-benchmark/issues"
+
+[project.scripts]
+stt-benchmark = "stt_benchmark.cli:main"  # Optional CLI entry point
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["stt_benchmark*"]
+
+[tool.setuptools.package-data]
+stt_benchmark = ["config/*.yaml"]
