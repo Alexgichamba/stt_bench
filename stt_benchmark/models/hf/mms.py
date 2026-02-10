@@ -102,7 +102,10 @@ class MMSModel(BaseASRModel):
                     sampling_rate=self.target_sr,
                     return_tensors="pt",
                 )
-                inputs = {k: v.to(self.device) for k, v in inputs.items()}
+                inputs = {
+                            k: v.to(device=self.device, dtype=self.torch_dtype) if v.is_floating_point() else v.to(self.device)
+                            for k, v in inputs.items()
+                        }
 
                 with torch.no_grad():
                     outputs = self.model(**inputs)
