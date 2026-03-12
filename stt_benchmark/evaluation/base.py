@@ -26,6 +26,7 @@ class ASTPrediction:
     source_lang: str
     target_lang: str
     prediction_time: Optional[float] = None
+    intermediate_transcript: Optional[str] = None  # ASR output for cascaded models
 
 
 @dataclass

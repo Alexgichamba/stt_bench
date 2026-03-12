@@ -19,6 +19,11 @@ from stt_benchmark.evaluation.metrics import ASRMetricsCalculator, ASTMetricsCal
 from stt_benchmark.utils.text_normalize import TextNormalizer
 
 
+def _is_cascaded_model(model) -> bool:
+    """Check if a model is a cascaded ASR→MT model with intermediate transcripts."""
+    return hasattr(model, "get_last_intermediate_transcripts")
+
+
 class EvaluationPipeline:
     """Main evaluation pipeline for ASR and AST models."""
 
@@ -253,8 +258,12 @@ class EvaluationPipeline:
         source_lang: str,
         target_lang: str,
     ) -> List[ASTPrediction]:
-        """Run AST inference — sends file paths to model."""
+        """Run AST inference — sends file paths to model.
+
+        For cascaded models, also captures intermediate ASR transcripts.
+        """
         predictions = []
+        is_cascaded = _is_cascaded_model(model)
 
         for i in tqdm(
             range(0, len(samples), batch_size), desc="AST inference", leave=False
@@ -266,12 +275,20 @@ class EvaluationPipeline:
             try:
                 hypotheses = model.translate(audio_paths, source_lang, target_lang)
                 pred_time = (time.time() - start) / len(batch)
+
+                # Capture intermediate transcripts from cascaded models
+                if is_cascaded:
+                    intermediate = model.get_last_intermediate_transcripts()
+                else:
+                    intermediate = [None] * len(batch)
+
             except Exception as e:
                 print(f"    Translation error: {e}")
                 hypotheses = [""] * len(batch)
+                intermediate = [None] * len(batch)
                 pred_time = None
 
-            for sample, hyp in zip(batch, hypotheses):
+            for sample, hyp, inter in zip(batch, hypotheses, intermediate):
                 predictions.append(
                     ASTPrediction(
                         sample_id=sample.sample_id,
@@ -282,6 +299,7 @@ class EvaluationPipeline:
                         source_lang=source_lang,
                         target_lang=target_lang,
                         prediction_time=pred_time,
+                        intermediate_transcript=inter,
                     )
                 )
 
@@ -333,6 +351,11 @@ class EvaluationPipeline:
     def _save_ast_result(self, result: ASTEvaluationResult):
         exp_dir = self.output_dir / result.experiment_name
 
+        # Check if any predictions have intermediate transcripts
+        has_intermediate = any(
+            p.intermediate_transcript is not None for p in result.predictions
+        )
+
         # Predictions CSV
         pred_dir = exp_dir / "predictions"
         pred_dir.mkdir(parents=True, exist_ok=True)
@@ -342,25 +365,28 @@ class EvaluationPipeline:
         )
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(
-                [
-                    "sample_id",
-                    "source_transcription",
-                    "reference",
-                    "hypothesis",
-                    "audio_path",
-                ]
-            )
+            header = [
+                "sample_id",
+                "source_transcription",
+                "reference",
+                "hypothesis",
+                "audio_path",
+            ]
+            if has_intermediate:
+                header.append("intermediate_transcript")
+            writer.writerow(header)
+
             for pred in result.predictions:
-                writer.writerow(
-                    [
-                        pred.sample_id,
-                        pred.source_transcription,
-                        pred.reference,
-                        pred.hypothesis,
-                        pred.audio_path,
-                    ]
-                )
+                row = [
+                    pred.sample_id,
+                    pred.source_transcription,
+                    pred.reference,
+                    pred.hypothesis,
+                    pred.audio_path,
+                ]
+                if has_intermediate:
+                    row.append(pred.intermediate_transcript or "")
+                writer.writerow(row)
 
         # Metrics JSON
         metrics_dir = exp_dir / "metrics"
@@ -384,6 +410,7 @@ class EvaluationPipeline:
                 else None
             ),
             "metric_config": result.metrics.metric_config,
+            "model_type": "cascaded" if has_intermediate else "end_to_end",
         }
         with open(metrics_path, "w") as f:
             json.dump(metrics_data, f, indent=2)

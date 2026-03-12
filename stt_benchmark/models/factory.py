@@ -8,6 +8,7 @@ from stt_benchmark.models.base import BaseASRModel, BaseASTModel, BaseSTTModel
 from stt_benchmark.models.hf.whisper import WhisperModel
 from stt_benchmark.models.hf.mms import MMSModel
 from stt_benchmark.models.hf.seamless import SeamlessModel
+from stt_benchmark.models.hf.cascaded import CascadedMmsNllbModel
 
 
 class ModelFactory:
@@ -17,6 +18,7 @@ class ModelFactory:
         "whisper": WhisperModel,
         "mms": MMSModel,
         "seamless": SeamlessModel,
+        "cascaded": CascadedMmsNllbModel,
     }
 
     @classmethod
@@ -28,7 +30,7 @@ class ModelFactory:
             config_path: Path to models.yaml (default: stt_benchmark/config/models.yaml)
 
         Returns:
-            Model instance (WhisperModel, MMSModel, or SeamlessModel)
+            Model instance (WhisperModel, MMSModel, SeamlessModel, or CascadedMmsNllbModel)
         """
         if config_path is None:
             config_path = Path(__file__).parent.parent / "config" / "models.yaml"
@@ -43,7 +45,7 @@ class ModelFactory:
             )
 
         model_config = config[model_id]
-        model_name = model_config["model_name"]
+        model_name = model_config.get("model_name", model_id)
         model_type = model_config.get("model_type")
 
         if model_type is None:
@@ -58,13 +60,21 @@ class ModelFactory:
 
         model_class = cls._model_registry[model_type]
         print(f"Creating {model_type} model: {model_name}")
+
+        # For cascaded models, pass model_id as model_name since there's no
+        # single HuggingFace model_name — it composes multiple models.
+        if model_type == "cascaded":
+            return model_class(model_id, model_config)
+
         return model_class(model_name, model_config)
 
     @classmethod
     def _infer_model_type(cls, model_id: str, model_name: str) -> str:
         """Infer model type from model_id or model_name."""
         combined = f"{model_id} {model_name}".lower()
-        if "whisper" in combined:
+        if "cascaded" in combined:
+            return "cascaded"
+        elif "whisper" in combined:
             return "whisper"
         elif "mms" in combined:
             return "mms"

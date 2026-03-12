@@ -84,3 +84,30 @@ mms_1b_fl102:
   device_map: "auto"
   tasks: ["asr"]
   generation_config: {}
+
+# ============================================================================
+# Cascaded Models (ASR → MT pipeline)
+# Supports: ASR + AST (via cascaded pipeline)
+# ============================================================================
+
+mms_1b_all_nllb_3b_cascaded:
+  model_type: "cascaded"
+  asr_model: "facebook/mms-1b-all"
+  mt_model: "facebook/nllb-200-3.3B"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 5
+    max_new_tokens: 384
+
+mms_1b_fl102_nllb_3b_cascaded:
+  model_type: "cascaded"
+  asr_model: "facebook/mms-1b-fl102"
+  mt_model: "facebook/nllb-200-3.3B"
+  torch_dtype: "float16"
+  device_map: "auto"
+  tasks: ["asr", "ast"]
+  generation_config:
+    num_beams: 5
+    max_new_tokens: 384
